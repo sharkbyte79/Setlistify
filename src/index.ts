@@ -1,55 +1,43 @@
-import express, { Express, Request, Response, Router } from 'express';
-import session from 'express-session';
-import passport, { AuthenticateOptions } from 'passport';
-import mongoose, { ConnectOptions } from 'mongoose';
 import cors from 'cors';
+import crypto from 'crypto';
 import dotenv from 'dotenv';
+import express, { Express, Request, Response } from 'express';
+import session from 'express-session';
+import passport from 'passport';
+
 import { routes } from './routes';
+import './services/mongo';
 import './services/passport';
 
 dotenv.config();
 
+if (!process.env.PORT) {
+    throw new Error('Port not found in environment variables');
+}
+
+const port: number = parseInt(process.env.PORT);
+
+const sessionSecret: string = crypto.randomBytes(32).toString('hex');
+
 const app: Express = express();
-const port: string | number = process.env.PORT || 3000; // default to port 3000
 
 app.use(
     session({
-        secret: process.env.SESSION_SECRET!,
-        resave: false,
-        saveUninitialized: false,
+        secret: sessionSecret,
+        resave: true,
+        saveUninitialized: true,
+        cookie: { secure: false }, // 'secure = false' for local/dev environment
     })
 );
 
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(routes);
-// app.use(authRoute);
-// if (!process.env.MONDODB_URI) {
-//     throw new Error("MongoDB URI couldn't be found!")
-// }
-
-/*
-Default to empty string if the MongoDB envar can't be found,
-catch the error during attempt to connect.
-*/
-const mongo_uri: string = process.env.MONGODB_URI ?? '';
-mongoose
-    .connect(mongo_uri, {
-        /* 
-        These settings will be deprecated in later versions of mongoose
-        */
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    } as ConnectOptions)
-    .then(() => console.log('[server]: Connected to MongoDB'))
-    .catch((err) => {
-        throw new Error('[server]: Could not connect to MongoDB\n' + err);
-    });
 
 app.get('/', (req: Request, res: Response) => {
     res.send('TypeScript says Hello, World!');
