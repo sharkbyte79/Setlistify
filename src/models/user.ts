@@ -1,14 +1,14 @@
-import mongoose, { Schema, Model } from 'mongoose';
+import { Document, model, Schema } from 'mongoose';
 
-export interface IUser {
-    user_id: string;
-}
+export type UserDocument = Document & {
+    spotifyId: string;
+    access_token: string;
+};
 
-const userSchema = new Schema<IUser>({
-    user_id: { 
-        type: String,
-        required: [ true, "user cannot be resolved without Spotify user ID"]
-    }
+const userSchema: Schema = new Schema<UserDocument>({
+    spotifyId: String,
+    access_token: String,
 });
 
-export default (mongoose.models.Location as unknown as Model<IUser> || mongoose.model<IUser>("User", userSchema))
+const User = model<UserDocument>('User', userSchema);
+export default User;
