@@ -1,0 +1,43 @@
+const klaw = require('klaw');
+const path = require('path');
+const through2 = require('through2')
+
+const filter = through2.obj(function (item, enc, next) {
+    if (!item.stats.isDirectory()) this.push(item);
+    next();
+});
+
+module.exports = function (dir,app,data) {
+    return new Promise((resolve,reject) => {
+        klaw(path.resolve(dir))
+        .pipe(filter)
+        .on('data', item => {
+            var location;
+            if (path.basename(item.path).endsWith('].js')) return;
+            if (path.basename(item.path) == 'index.js') {
+                location = path.relative(path.resolve(dir),path.dirname(item.path));
+            } else {
+                location = path.relative(path.resolve(dir),item.path).slice(0,-3)
+            }
+
+            location = location.replace('+','/').replace('~',':');
+
+            var route = require(item.path)(app,data);
+            app.all('/' + location,(req,res) => {
+                if ('all' in route) {
+                    route.all(req,res);
+                } else {
+                    var method = req.method.toLowerCase();
+                    if (method in route) {
+                        route[method](req,res);
+                    } else if ('else' in route) {
+                        route.else(req,res);
+                    } else {
+                        res.sendStatus(405);
+                    }
+                }
+            });
+        })
+        .on('end',resolve)
+    });
+}

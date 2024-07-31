@@ -1,0 +1,45 @@
+# Express Easy-Router
+## *A very simple route loader for express apps*
+
+### Example
+
+```js
+// index.js
+const path = require('path');
+const express = require('express');
+const app = express();
+
+var test = {
+    data: 'data',
+    more: 'data'
+}
+
+require('..')(path.resolve(__dirname,'routes'),app,{test});
+
+app.listen(8080,() => {
+    console.log(`Test server listening...`);
+});
+```
+
+```js
+// routes/index.js
+module.exports = (app,{test}) => {
+    return {
+        all(req,res) {
+            res.json(test);
+        }
+    }
+}
+```
+## Documentation
+
+Each route should export a function. The arguments must be `(app,{})`, where `app` is your express server, and `{}` are your dependencies
+
+The arguments for the module are: `(folder,app,{})`, where `folder` is where you want to load your routes from, `app` is your express server, and `{}` are your dependencies
+
+Ex:
+
+```js
+const path = require('path');
+require('eer')(path.resolve(__dirname,'routes'),app,{some:'dependency'})
+```

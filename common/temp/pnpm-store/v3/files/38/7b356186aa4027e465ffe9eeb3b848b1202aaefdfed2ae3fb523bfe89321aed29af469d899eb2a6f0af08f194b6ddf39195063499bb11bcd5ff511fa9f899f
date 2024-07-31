@@ -1,0 +1,14 @@
+const path = require('path');
+const express = require('express');
+const app = express();
+
+var test = {
+    data: 'data',
+    more: 'data'
+}
+
+require('..')(path.resolve(__dirname,'routes'),app,{test}).then(() => console.log('done'))
+
+app.listen(8080,() => {
+    console.log(`Test server listening...`);
+});

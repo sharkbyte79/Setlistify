@@ -1,0 +1,11 @@
+{
+  "node": "20.11.0",
+  "packageManager": "pnpm",
+  "packageManagerVersion": "8.15.8",
+  "rushJsonFolder": "/home/layne/dev/javascript/setlistify-rush",
+  "ignoreScripts": false,
+  "pnpmSync": "0.2.9",
+  "npmrcHash": "faf2527e61716426e4c7c0a56a64d21ae059d00f",
+  "storePath": "/home/layne/dev/javascript/setlistify-rush/common/temp/pnpm-store",
+  "workspaces": true
+}
