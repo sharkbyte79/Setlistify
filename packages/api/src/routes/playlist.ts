@@ -40,14 +40,30 @@ router.get('/playlist/create', async (req: Request, res: Response) => {
         )
         .then((response) => {
             console.log('[server]: Playlist successfully created');
-            res.sendStatus(response.status);
+            //res.sendStatus(response.status);
         })
         .catch((err) => {
             throw new Error(
                 '[server]: Error occured creating playlist\n' + err
             );
         });
+    
+    const setlistID: string = parseSetlistURL('https://www.setlist.fm/setlist/slaughter-beach-dog/2024/space-evanston-il-63ab9ef3.html')
+
+    const response = await axios.get(`https://api.setlist.fm/rest/1.0/setlist/63ab9ef3`, {
+      headers: {
+        'x-api-key': process.env.SETLIST_FM_API_KEY,
+        'Accept': 'application/json',
+        'User-Agent': 'setlistify/1.0' // Setlist.fm might require a User-Agent header
+      }
+    });
+    res.json(response.data);
+    
 });
+
+router.get('playlist/populate', async (req: Request, res: Response) => {
+    res.send('Test');
+})
 
 function populatePlaylist(
     userId: string,
@@ -56,7 +72,12 @@ function populatePlaylist(
 ) {}
 
 /**
- *
+ * Takes a string representing the link to a setlist on setlist.fm and parses it for the 'setlist ID'.
+ 
+ * @param setlist_url - the full URL of a concert's setlist on setlist.fm
+ * 
+ * @remarks
+ * Format of a URL: https://www.setlist.fm/setlist/slaughter-beach-dog/2024/space-evanston-il-${SETLISTID}.html
  */
 function parseSetlistURL(setlist_url: string): string {
     if (!setlist_url) {
