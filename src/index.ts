@@ -17,13 +17,11 @@ if (!process.env.PORT) {
 
 const port: number = parseInt(process.env.PORT);
 
-const sessionSecret: string = crypto.randomBytes(32).toString('hex');
-
 const app: Express = express();
 
 app.use(
     session({
-        secret: sessionSecret,
+        secret: crypto.randomBytes(32).toString('hex'),
         resave: true,
         saveUninitialized: true,
         cookie: { secure: false }, // 'secure = false' for local/dev environment

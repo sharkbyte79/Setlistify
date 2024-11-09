@@ -11,12 +11,15 @@ import User from '../models/user';
 
 dotenv.config();
 
-passport.serializeUser(async function (user, done) {
-    done(null, user.id);
+passport.serializeUser(async function (user: any, done) {
+    console.log('making it to serialize');
+    done(null, user.spotifyId);
 });
 
 passport.deserializeUser(async function (id, done) {
-    await User.findById(id).then((user) => {
+    console.log('starting deserialize...');
+    await User.findOne({ spotifyId: id }).then((user) => {
+        console.log('making it to deserialize');
         done(null, user);
     });
 });
@@ -41,21 +44,17 @@ passport.use(
             profile: Profile,
             done: VerifyCallback
         ) => {
-            // let user = await User.findOne({ spotifyId: profile.id });
-            // if (!user) {
-            //     user = await User.create({
-            //         spotifyId: profile.id,
-            //         access_token: accessToken,
-            //     });
-            // }
-            //
-            const user = await User.create({
-                spotifyId: profile.id,
-                access_token: accessToken,
-            });
+            // If a user matching that
+            let user = await User.updateOne(
+                {
+                    spotifyId: profile.id,
+                    accessToken: accessToken,
+                },
+                { upsert: true }
+            );
 
+            console.log('right after db');
             done(null, user);
         }
     )
 );
-
